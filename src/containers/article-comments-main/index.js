@@ -20,6 +20,7 @@ function ArticleCommentsMain() {
   const [boolComment,setBoolComment] = useState(false);
   const [vY,setY] = useState(0);
   const [data,setData] = useState(null);
+  const [idForAnswer,setIdForAnswer] = useState(0);
 
   const dispatch = useDispatch();
   const location = useLocation();
@@ -40,9 +41,12 @@ function ArticleCommentsMain() {
 
   const {t} = useTranslate();
 
+  const articleComments = useMemo(() => selectRedux.articleComments, [selectRedux.articleComments]);
+  const idForAnswerMemo = useMemo(() => idForAnswer, [idForAnswer]);
+
   const options = {
     articleComments: [
-      ...treeToList(listToTree(selectRedux.articleComments), (item, level) => (
+      ...treeToList(listToTree(articleComments), (item, level) => (
         {_id: item._id,
          text: item.text,
          dateCreate: item.dateCreate,
@@ -55,7 +59,6 @@ function ArticleCommentsMain() {
     count: useMemo(() => selectRedux.count, [selectRedux.count]),
     exists: useMemo(() => select.exists, [select.exists]),
     _id: useMemo(() => selectRedux._id, [selectRedux._id]),
-    waiting: useMemo(() => selectRedux.waiting, [selectRedux.waiting]),
   };
 
   const fScrollY = () => {
@@ -109,7 +112,7 @@ function ArticleCommentsMain() {
         dispatch(articleCommentActions.load(data)),
         setTimeout(() => {
           setPageRefresh(true);
-        }, 100)
+        }, 500)
       ]);
     }
     fLoad();
@@ -119,12 +122,13 @@ function ArticleCommentsMain() {
   useEffect(() => {
     if (pageRefresh == true) {
       setPageRefresh(false);
+      setIdForAnswer(selectRedux.data?._id);
     async function fLoad() {
       await Promise.all([        
         dispatch(articleCommentsActions.loadComment(selectRedux.data,select.user)),
         setTimeout(() => {
           window.scrollTo(0, vY);
-        }, 100)
+        }, 500)
       ]);
     }
     fLoad();
@@ -151,13 +155,14 @@ function ArticleCommentsMain() {
   }, [selectRedux.waiting, selectRedux.scrollY,location.pathname])*/
 
   return (
-        (options.waiting == false ?
+        (selectRedux.waiting == false ?
         <ArticleCardComments articleComments={options.articleComments}
                              autorization={options.exists}
                              user={select.user}
                              count={options.count}
                              onAnswer={callbacks.onAnswer}
                              onComment={callbacks.onComment}
+                             idForAnswer={idForAnswerMemo}
                              onLogin={callbacks.onLogin}
                              t={t}/>
         : ''

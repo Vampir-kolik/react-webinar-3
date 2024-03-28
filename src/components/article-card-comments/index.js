@@ -5,7 +5,7 @@ import './style.css';
 import {Link} from 'react-router-dom';
 import debounce from 'lodash.debounce';
 
-function ArticleCardComments({articleComments, autorization, count, onAnswer, onComment, user, onLogin, t}) {
+function ArticleCardComments({articleComments, autorization, count, onAnswer, onComment, user, idForAnswer, onLogin, t}) {
   const cn = bem('ArticleCardComments');
 
   const [id,setId] = useState(0);
@@ -14,9 +14,10 @@ function ArticleCardComments({articleComments, autorization, count, onAnswer, on
   const [Answer,setAnswer] = useState('');
   const [Comment,setComment] = useState('');
   const [boolScroll,setBoolScroll] = useState(false);
+  const [AnswerLevel,setAnswerLevel] = useState(0);
 
   const onChangeAnswerDebounce = useCallback(
-    debounce(value => setAnswer(value), 300),
+    debounce(value => setAnswer(value), 1),
     []
   );
 
@@ -26,7 +27,7 @@ function ArticleCardComments({articleComments, autorization, count, onAnswer, on
   };
 
   const onChangeCommentDebounce = useCallback(
-    debounce(value => setComment(value), 300),
+    debounce(value => setComment(value), 1),
     []
   );
 
@@ -58,7 +59,9 @@ function ArticleCardComments({articleComments, autorization, count, onAnswer, on
     if (articleComments.length - 1 == index) {
       setIndexAnswer(index);
     }
-    setIndentAnswer(fIndentAnswer(level));
+    let vLevel = (AnswerLevel == 0 ? level+1 : AnswerLevel);
+    setIndentAnswer(fIndentAnswer(vLevel));
+    setAnswerLevel(vLevel);
     setBoolScroll(true);
   };
 
@@ -169,6 +172,7 @@ function ArticleCardComments({articleComments, autorization, count, onAnswer, on
         <div key={index * vMaxIndex + 11} className={cn('Answer')}>
           <div key={index * vMaxIndex + 12} className={cn('newAnswer')}>{t('articleComments.newAnswer')}</div>
           <textarea ref={vRefScrollY}
+                    value={Answer}
                     key={index * vMaxIndex + 13}
                     className={cn('textareaAnswer')}
                     onChange={onChangeAnswer}/>
@@ -176,7 +180,12 @@ function ArticleCardComments({articleComments, autorization, count, onAnswer, on
             <div key={index * vMaxIndex + 15} className={cn('divSend')}>
               <button key={index * vMaxIndex + 16}
                       className={cn('buttonSend')}
-                      onClick={() => {onAnswer(Answer,id); setId(0);}}>{t('articleComments.send')}</button>
+                      onClick={() => {onAnswer(Answer,id);
+                                      setAnswer('');
+                                      setIndexAnswer(IndexAnswer+1);
+                                      setAnswerLevel(item.level);
+                                      setIndentAnswer(fIndentAnswer(item.level));
+                                      }}>{t('articleComments.send')}</button>
             </div>
             <div key={index * vMaxIndex + 17} className={cn('divCancel')}>
               <button key={index * vMaxIndex + 18}
@@ -194,7 +203,7 @@ function ArticleCardComments({articleComments, autorization, count, onAnswer, on
 
   return (
     <div className={cn()}>
-      <div className={cn('title')}>{(count > 0 ? t('articleComments.title',count) : t('articleComments.title.other'))} ({count})</div>
+      <div className={cn('title')}>{(count > 0 ? t('articleComments.title',count) : t('articleComments.title.zero'))} ({count})</div>
       <div className={cn('comments')}>
       {articleComments.length > 0 && articleComments.map((item,index) => 
         (fCommentElement(item,index))
@@ -242,12 +251,14 @@ ArticleCardComments.propTypes = {
   onComment: PropTypes.func,
   onLogin: PropTypes.func,
   user: PropTypes.string,
+  idForAnswer: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   t: PropTypes.func
 };
 
 ArticleCardComments.defaultProps = {
   user: '',
   autorization: false,
+  fZeroIdForAnswer: () => {},
   onAnswer: () => {},
   onComment: () => {},
   onLogin: () => {},

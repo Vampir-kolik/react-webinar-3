@@ -33,6 +33,7 @@
   "articleComments.cancel": "Cancel",
   "articleComments.textForToAnswer": "to be able to respond",
   "articleComments.toAnswer": "To answer",
+  "articleComments.title.zero": "Comments",
   "articleComments.title": {
     "one": "Comment",
     "other": "Comments"

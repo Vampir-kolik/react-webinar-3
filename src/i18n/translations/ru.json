@@ -33,6 +33,7 @@
   "articleComments.cancel": "Отмена",
   "articleComments.textForToAnswer": "чтобы иметь возможность ответить",
   "articleComments.toAnswer": "Ответить",
+  "articleComments.title.zero": "Комментариев",
   "articleComments.title": {
     "one": "Комментарий",
     "few": "Комментария",

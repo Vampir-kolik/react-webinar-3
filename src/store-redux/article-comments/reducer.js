@@ -31,7 +31,6 @@ function reducer(state = initialState, action) {
       let data = {...state.data};
       data.items.push({...action.payload.data, author: {profile: {name: action.payload.user}}});
       data.count++;
-      console.log(action.payload.data);
       return {...state, waiting: false, data: data };
   
     case "article-comments/loadComment-error":
